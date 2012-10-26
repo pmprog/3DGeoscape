@@ -86,7 +86,7 @@ int main()
 		IrrlichtDevice* tmpDevice = createDevice( video::EDT_NULL );
 		
 
-		device = createDevice(driverType, core::dimension2d<u32>(1024, 600), 32, false, false, false, &receiver);
+		device = createDevice(driverType, core::dimension2d<u32>(800, 600), 32, false, false, false, &receiver);
 		//device = createDevice(driverType, tmpDevice->getVideoModeList()->getDesktopResolution(), tmpDevice->getVideoModeList()->getDesktopDepth(), true, false, false, &receiver);
 
 		if (device == 0)
@@ -234,15 +234,6 @@ int main()
 				cam->setTarget( node->getPosition() );
 				//cam->setTarget( *GetLongitudeLatitudeOffset( newCamPos, cameraLocation, 10.0 )  );
 				
-				core::vector3df camUp( cam->getUpVector().X, cam->getUpVector().Y, cam->getUpVector().Z );
-				if( cameraLocation->Y <= 90 || cameraLocation->Y >= 270 )
-				{
-						camUp.Y = -1;
-				} else {
-						camUp.Y = 1;
-				}
-				cam->setUpVector( camUp );
-				
 
 				//node->setPosition(nodePosition);
 
@@ -253,7 +244,15 @@ int main()
 				device->getGUIEnvironment()->drawAll(); // draw the gui environment (the logo)
 
 
-
+				//
+				core::vector3df camUp( cam->getUpVector().X, cam->getUpVector().Y, cam->getUpVector().Z );
+				if( cameraLocation->Y < 90 || cameraLocation->Y >= 270 )
+				{
+						camUp.Y = -1;
+				} else {
+						camUp.Y = 1;
+				}
+				cam->setUpVector( camUp );
 				
 
 				core::vector3df camInv = cam->getRotation();
@@ -270,6 +269,7 @@ int main()
 				if( hitCheck == node )
 				{
 					indicatorNode->setPosition( mousePosition );
+					
 				}
 
 
@@ -279,6 +279,8 @@ int main()
 				printf( "Cam:Lon/Lat: %f, %f\n", cameraLocation->X, cameraLocation->Y );
 				printf( "Cal:Lon/Lat: %f, %f\n", polarMouse->X, polarMouse->Y );
 
+
+				indicatorNode->setRotation( cam->getRotation() );
 
 				driver->endScene();
 
