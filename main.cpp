@@ -74,6 +74,7 @@ int main()
 		//core::vector3df* globeRotation = new core::vector3df(0, 0, 0);
 		core::vector2df* cameraLocation = new core::vector2df( 180, 180 );
 		f32 cameraZoom = 12.0;
+		f32 upVectorDistance = (cameraZoom*cameraZoom)*2;
 
 		// ask user for driver
 		video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9; // DIRECT3D9; // driverChoiceConsole();
@@ -198,16 +199,18 @@ int main()
 						cameraZoom += ZOOM_SPEED * frameDeltaTime;
 						if( cameraZoom > 12.0 )
 								cameraZoom = 12.0;
+						upVectorDistance = (cameraZoom*cameraZoom)*2;
 				}
 				else if(receiver.IsKeyDown(irr::KEY_KEY_Q))
 				{
 						cameraZoom -= ZOOM_SPEED * frameDeltaTime;
 						if( cameraZoom < 6.0 )
 								cameraZoom = 6.0;
+						upVectorDistance = (cameraZoom*cameraZoom)*2;
 				}
 
 
-				core::vector3df* newCamPos = new core::vector3df( node->getPosition().X, node->getPosition().Y, node->getPosition().Z );
+				core::vector3df* nodeLocalPos = new core::vector3df( node->getPosition().X, node->getPosition().Y, node->getPosition().Z );
 
 				if( cameraLocation->X < 0 )
 						cameraLocation->X += 360;
@@ -218,24 +221,9 @@ int main()
 				if( cameraLocation->Y >= 360 )
 						cameraLocation->Y -= 360;
 
-				cam->setPosition( *GetLongitudeLatitudeOffset( newCamPos, cameraLocation, cameraZoom ) );
-
-				/*
-				const core::vector3df camUpD( cam->getRotation().X, cam->getRotation().Y, cam->getRotation().Z );
-	irr::core::matrix4 m;
-	m.setRotationDegrees( camUpD );
-	irr::core::matrix4 n;
-	n.setRotationDegrees(core::vector3df(90,0,0));
-	m *= n;
-				core::vector3df* camUp = new core::vector3df( camUpD.X, camUpD.Y, camUpD.Z );
-				cam->setUpVector( *camUp );
-				*/
-
+				cam->setPosition( *GetLongitudeLatitudeOffset( nodeLocalPos, cameraLocation, cameraZoom ) );
 				cam->setTarget( node->getPosition() );
-				//cam->setTarget( *GetLongitudeLatitudeOffset( newCamPos, cameraLocation, 10.0 )  );
 				
-
-				//node->setPosition(nodePosition);
 
 				driver->beginScene(true, true, video::SColor(255,113,113,133));
 
@@ -243,16 +231,10 @@ int main()
 				smgr->drawAll(); // draw the 3d scene
 				device->getGUIEnvironment()->drawAll(); // draw the gui environment (the logo)
 
-
-				//
-				core::vector3df camUp( cam->getUpVector().X, cam->getUpVector().Y, cam->getUpVector().Z );
-				if( cameraLocation->Y < 90 || cameraLocation->Y >= 270 )
-				{
-						camUp.Y = -1;
-				} else {
-						camUp.Y = 1;
-				}
-				cam->setUpVector( camUp );
+				core::vector2df *camUpRot = new core::vector2df( cameraLocation->X, cameraLocation->Y + 45 );
+				core::vector3df camUp = *GetLongitudeLatitudeOffset( nodeLocalPos, camUpRot, upVectorDistance );
+				camUp = cam->getPosition() - camUp;
+				cam->setUpVector( camUp.normalize() );
 				
 
 				core::vector3df camInv = cam->getRotation();
@@ -272,13 +254,11 @@ int main()
 					
 				}
 
-
 				core::vector3df worldPosition( node->getPosition().X, node->getPosition().Y, node->getPosition().Z );
-				core::vector2df* polarMouse = GetLongitudeLatitude( &worldPosition, GetLongitudeLatitudeOffset( newCamPos, cameraLocation, 5.0 ), 5.0 );
+				core::vector2df* polarMouse = GetLongitudeLatitude( &worldPosition, GetLongitudeLatitudeOffset( nodeLocalPos, cameraLocation, 5.0 ), 5.0 );
 
 				printf( "Cam:Lon/Lat: %f, %f\n", cameraLocation->X, cameraLocation->Y );
 				printf( "Cal:Lon/Lat: %f, %f\n", polarMouse->X, polarMouse->Y );
-
 
 				indicatorNode->setRotation( cam->getRotation() );
 
