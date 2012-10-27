@@ -1,6 +1,7 @@
 
 #include <irrlicht.h>
 #include "driverChoice.h"
+#include "polar.h"
 
 #define IDFlag_IsNotPickable			0
 #define IDFlag_IsPickable					1
@@ -71,10 +72,10 @@ different possibilities to move and animate scene nodes.
 */
 int main()
 {
-		//core::vector3df* globeRotation = new core::vector3df(0, 0, 0);
-		core::vector2df* cameraLocation = new core::vector2df( 180, 180 );
-		f32 cameraZoom = 12.0;
-		f32 upVectorDistance = (cameraZoom*cameraZoom)*2;
+		//core::vector2df* cameraLocation = new core::vector2df( 180, 180 );
+		//f32 cameraZoom = 12.0;
+		Polar* cameraLocation = new Polar( 0.0, 0.0, 12.0 );
+		f32 cameraUpVctDst = (cameraLocation->Radius * cameraLocation->Radius) * 2;
 
 		// ask user for driver
 		video::E_DRIVER_TYPE driverType = video::EDT_DIRECT3D9; // DIRECT3D9; // driverChoiceConsole();
@@ -104,7 +105,7 @@ int main()
 		scene::ISceneNode* indicatorNode = smgr->addSphereSceneNode(0.4, 32,0, IDFlag_IsNotPickable);
 		if (indicatorNode)
 		{
-				indicatorNode->setPosition(core::vector3df(0,0,10));
+				//indicatorNode->setPosition(core::vector3df(0,0,10));
 				indicatorNode->setMaterialTexture(0, driver->getTexture("earth_day.jpg"));
 				indicatorNode->setMaterialFlag(video::EMF_LIGHTING, true);
 		}
@@ -114,7 +115,7 @@ int main()
 		scene::ITriangleSelector* nodeTS;
 		if (node)
 		{
-				node->setPosition(core::vector3df(0,0,10));
+				//node->setPosition(core::vector3df(0,0,10));
 				//node->setRotation(core::vector3df(0,0,7));
 				node->setMaterialTexture(0, driver->getTexture("earth_day.jpg"));
 				node->setMaterialFlag(video::EMF_LIGHTING, true);
@@ -123,9 +124,9 @@ int main()
 								node->setTriangleSelector( nodeTS );
 		}
 
-		scene::ISceneNode* ln = smgr->addLightSceneNode( 0, core::vector3df(0, 0, 10), video::SColorf(1.0, 1.0, 1.0), 600.0, IDFlag_IsNotPickable );
+		scene::ISceneNode* ln = smgr->addLightSceneNode( 0, core::vector3df(0, 0, 0), video::SColorf(1.0, 1.0, 1.0), 500.0, IDFlag_IsNotPickable );
 		scene::ISceneNodeAnimator* anim =
-				smgr->createFlyCircleAnimator(core::vector3df(0,0,10), 150.0f);
+				smgr->createFlyCircleAnimator(core::vector3df(0,0,0), 150.0f);
 		if (anim)
 		{
 				ln->addAnimator(anim);
@@ -171,57 +172,57 @@ int main()
 				{
 						//nodePosition.Y += MOVEMENT_SPEED * frameDeltaTime;
 						//r.rotateXYBy( 0.8, node->getPosition() );
-						cameraLocation->Y += MOVEMENT_SPEED * frameDeltaTime;
+						cameraLocation->Latitude += MOVEMENT_SPEED * frameDeltaTime;
 				}
 						
 				else if(receiver.IsKeyDown(irr::KEY_KEY_S))
 				{
 						//nodePosition.Y -= MOVEMENT_SPEED * frameDeltaTime;
 						//r.rotateXYBy( 0.8, node->getPosition() );
-						cameraLocation->Y -= MOVEMENT_SPEED * frameDeltaTime;
+						cameraLocation->Latitude -= MOVEMENT_SPEED * frameDeltaTime;
 				}
 
 				if(receiver.IsKeyDown(irr::KEY_KEY_A))
 				{
 						//nodePosition.X -= MOVEMENT_SPEED * frameDeltaTime;
 						//r.rotateXZBy( 0.8, node->getPosition() );
-						cameraLocation->X += MOVEMENT_SPEED * frameDeltaTime;
+						cameraLocation->Longitude -= MOVEMENT_SPEED * frameDeltaTime;
 				}
 				else if(receiver.IsKeyDown(irr::KEY_KEY_D))
 				{
 						//nodePosition.X += MOVEMENT_SPEED * frameDeltaTime;
 						//r.rotateXZBy( -0.8, node->getPosition() );
-						cameraLocation->X -= MOVEMENT_SPEED * frameDeltaTime;
+						cameraLocation->Longitude += MOVEMENT_SPEED * frameDeltaTime;
 				}
 
 				else if(receiver.IsKeyDown(irr::KEY_KEY_E))
 				{
-						cameraZoom += ZOOM_SPEED * frameDeltaTime;
-						if( cameraZoom > 12.0 )
-								cameraZoom = 12.0;
-						upVectorDistance = (cameraZoom*cameraZoom)*2;
+						cameraLocation->Radius += ZOOM_SPEED * frameDeltaTime;
+						if( cameraLocation->Radius > 12.0 )
+								cameraLocation->Radius = 12.0;
+						cameraUpVctDst = (cameraLocation->Radius * cameraLocation->Radius) * 2;
 				}
 				else if(receiver.IsKeyDown(irr::KEY_KEY_Q))
 				{
-						cameraZoom -= ZOOM_SPEED * frameDeltaTime;
-						if( cameraZoom < 6.0 )
-								cameraZoom = 6.0;
-						upVectorDistance = (cameraZoom*cameraZoom)*2;
+						cameraLocation->Radius -= ZOOM_SPEED * frameDeltaTime;
+						if( cameraLocation->Radius < 6.0 )
+								cameraLocation->Radius = 6.0;
+						cameraUpVctDst = (cameraLocation->Radius * cameraLocation->Radius) * 2;
 				}
 
 
-				core::vector3df* nodeLocalPos = new core::vector3df( node->getPosition().X, node->getPosition().Y, node->getPosition().Z );
+				//core::vector3df* nodeLocalPos = new core::vector3df( node->getPosition().X, node->getPosition().Y, node->getPosition().Z );
 
-				if( cameraLocation->X < 0 )
-						cameraLocation->X += 360;
-				if( cameraLocation->Y < 0 )
-						cameraLocation->Y += 360;
-				if( cameraLocation->X >= 360 )
-						cameraLocation->X -= 360;
-				if( cameraLocation->Y >= 360 )
-						cameraLocation->Y -= 360;
+				if( cameraLocation->Latitude < 0 )
+						cameraLocation->Latitude += 360;
+				if( cameraLocation->Longitude < 0 )
+						cameraLocation->Longitude += 360;
+				if( cameraLocation->Latitude >= 360 )
+						cameraLocation->Latitude -= 360;
+				if( cameraLocation->Longitude >= 360 )
+						cameraLocation->Longitude -= 360;
 
-				cam->setPosition( *GetLongitudeLatitudeOffset( nodeLocalPos, cameraLocation, cameraZoom ) );
+				cam->setPosition( cameraLocation->ToCartesian() );  // *GetLongitudeLatitudeOffset( nodeLocalPos, cameraLocation, cameraZoom ) );
 				cam->setTarget( node->getPosition() );
 				
 
@@ -231,10 +232,12 @@ int main()
 				smgr->drawAll(); // draw the 3d scene
 				device->getGUIEnvironment()->drawAll(); // draw the gui environment (the logo)
 
-				core::vector2df *camUpRot = new core::vector2df( cameraLocation->X, cameraLocation->Y + 45 );
-				core::vector3df camUp = *GetLongitudeLatitudeOffset( nodeLocalPos, camUpRot, upVectorDistance );
+
+				Polar* camUpRot = new Polar( cameraLocation->Longitude, cameraLocation->Latitude - 45, cameraUpVctDst );
+				core::vector3df camUp = camUpRot->ToCartesian();
 				camUp = cam->getPosition() - camUp;
 				cam->setUpVector( camUp.normalize() );
+				
 				
 
 				core::vector3df camInv = cam->getRotation();
@@ -254,11 +257,8 @@ int main()
 					
 				}
 
-				core::vector3df worldPosition( node->getPosition().X, node->getPosition().Y, node->getPosition().Z );
-				core::vector2df* polarMouse = GetLongitudeLatitude( &worldPosition, GetLongitudeLatitudeOffset( nodeLocalPos, cameraLocation, 5.0 ), 5.0 );
-
-				printf( "Cam:Lon/Lat: %f, %f\n", cameraLocation->X, cameraLocation->Y );
-				printf( "Cal:Lon/Lat: %f, %f\n", polarMouse->X, polarMouse->Y );
+				Polar* polarMouse = new Polar( cameraLocation->ToCartesian(), cameraLocation->Radius );
+				printf( "Cam:Lon/Lat: %f, %f\t%f, %f\n", cameraLocation->Longitude, cameraLocation->Latitude , polarMouse->Longitude, polarMouse->Latitude );
 
 				indicatorNode->setRotation( cam->getRotation() );
 
@@ -310,8 +310,13 @@ core::vector2df* GetLongitudeLatitude( core::vector3df* centre, core::vector3df*
 	core::vector2df* converted = new core::vector2df(0, 0);
 	//radius = ((cartesian->X - centre->X) * (cartesian->X - centre->X)) + ((cartesian->Y - centre->Y) * (cartesian->Y - centre->Y)) + ((cartesian->Z - centre->Z) * (cartesian->Z - centre->Z));
 
-	converted->Y = core::radToDeg(asin( (cartesian->Y - centre->Y) / radius ));
-	converted->X = core::radToDeg(atan2( (cartesian->Z - centre->Z), (cartesian->X - centre->X) ));
+	// longitude
+	converted->X = core::radToDeg(asin( (cartesian->Z - centre->Z) / radius )) + 180;
+
+
+	converted->Y = core::radToDeg(atan2( (cartesian->Y - centre->Y), (cartesian->X - centre->X) ));
+	if( converted->Y < 0 )
+		converted->Y += 360;
 	//converted->X = core::radToDeg(asin( cartesian->Z / radius ));
 	//converted->Y = core::radToDeg(atan2( cartesian->Y, cartesian->X ));
 	return converted;
