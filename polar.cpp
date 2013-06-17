@@ -25,8 +25,6 @@ Polar::Polar( f32 longitude, f32 latitude, f32 radius )
 Polar::Polar( core::vector3df cartesian, f32 radius )
 {
 	Radius = radius;
-
-	// TODO: Need to get Latitude in 360degree rotation
 	Latitude = core::radToDeg(asin( cartesian.Y / radius ));
 	Longitude = core::radToDeg(atan2( cartesian.Z, cartesian.X ));
 	if( Longitude < 0 )

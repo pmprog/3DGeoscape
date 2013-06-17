@@ -10,9 +10,6 @@ using namespace irr;
 
 IrrlichtDevice* device;
 
-core::vector3df* GetLongitudeLatitudeOffset( core::vector3df* centre, core::vector2df* longlat, float radius );
-core::vector2df* GetLongitudeLatitude( core::vector3df* centre, core::vector3df* cartesian, float radius );
-
 /*
 To receive events like mouse and keyboard input, or GUI events like "the OK
 button has been clicked", we need an object which is derived from the
@@ -74,7 +71,7 @@ int main()
 {
 		//core::vector2df* cameraLocation = new core::vector2df( 180, 180 );
 		//f32 cameraZoom = 12.0;
-		Polar* cameraLocation = new Polar( 0.0, 0.0, 12.0 );
+		Polar* cameraLocation = new Polar( 180.0, 0.0, 12.0 );
 		f32 cameraUpVctDst = (cameraLocation->Radius * cameraLocation->Radius) * 2;
 
 		// ask user for driver
@@ -105,8 +102,7 @@ int main()
 		scene::ISceneNode* indicatorNode = smgr->addSphereSceneNode(0.4, 32,0, IDFlag_IsNotPickable);
 		if (indicatorNode)
 		{
-				//indicatorNode->setPosition(core::vector3df(0,0,10));
-				indicatorNode->setMaterialTexture(0, driver->getTexture("earth_day.jpg"));
+				indicatorNode->setMaterialTexture(0, driver->getTexture("background.png"));
 				indicatorNode->setMaterialFlag(video::EMF_LIGHTING, true);
 		}
 
@@ -115,8 +111,6 @@ int main()
 		scene::ITriangleSelector* nodeTS;
 		if (node)
 		{
-				//node->setPosition(core::vector3df(0,0,10));
-				//node->setRotation(core::vector3df(0,0,7));
 				node->setMaterialTexture(0, driver->getTexture("earth_day.jpg"));
 				node->setMaterialFlag(video::EMF_LIGHTING, true);
 
@@ -289,36 +283,5 @@ int main()
 		device->drop();
 		
 		return 0;
-}
-
-
-core::vector3df* GetLongitudeLatitudeOffset( core::vector3df* centre, core::vector2df* longlat, float radius )
-{
-	float longitude = core::degToRad(longlat->X);
-	float latitude = core::degToRad(longlat->Y);
-	core::vector3df* converted = new core::vector3df(0, 0, 0);
-	converted->X = centre->X + (-radius * cos(latitude) * cos(longitude));
-	converted->Y = centre->Y + (radius * sin(latitude));
-	converted->Z = centre->Z + (radius * cos(latitude) * sin(longitude));
-
-
-	return converted;
-}
-
-core::vector2df* GetLongitudeLatitude( core::vector3df* centre, core::vector3df* cartesian, float radius )
-{
-	core::vector2df* converted = new core::vector2df(0, 0);
-	//radius = ((cartesian->X - centre->X) * (cartesian->X - centre->X)) + ((cartesian->Y - centre->Y) * (cartesian->Y - centre->Y)) + ((cartesian->Z - centre->Z) * (cartesian->Z - centre->Z));
-
-	// longitude
-	converted->X = core::radToDeg(asin( (cartesian->Z - centre->Z) / radius )) + 180;
-
-
-	converted->Y = core::radToDeg(atan2( (cartesian->Y - centre->Y), (cartesian->X - centre->X) ));
-	if( converted->Y < 0 )
-		converted->Y += 360;
-	//converted->X = core::radToDeg(asin( cartesian->Z / radius ));
-	//converted->Y = core::radToDeg(atan2( cartesian->Y, cartesian->X ));
-	return converted;
 }
 
